@@ -1,34 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Recipe from "./components/Recipe";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [recipes, setRecipes] = useState([]);
+  const [userSearch, setUserSearch] = useState("");
+
+  const getData = () => {
+    axios
+      .get(`https://www.themealdb.com/api/json/v1/1/search.php?s=${userSearch}`)
+      .then((res) => setRecipes(res.data.meals));
+  };
+
+  useEffect(() => getData(), [userSearch]);
+
+  const handleChange = (e) => {
+    e.preventDefault();
+    setUserSearch(e.target.value);
+  };
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <header>
+      <h1>MEAL APP</h1>
+      <form>
+        <label for="search">Entrez le nom d'un aliment (en anglais)</label>
+        <input
+          type="text"
+          placeholder="ex : beef"
+          onChange={(e) => handleChange(e)}
+        />
+      </form>
+      <div className="card-container">
+        <ul className="container">
+          {recipes.map((recipe) => (
+            <Recipe key={recipe.idMeal} recipe={recipe} />
+          ))}
+        </ul>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    </header>
+  );
 }
 
-export default App
+export default App;
